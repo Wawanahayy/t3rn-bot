@@ -163,17 +163,15 @@ def process_network_transactions(network_name, bridges, chain_data, successful_t
 
     return successful_txs
 
-# Fungsi untuk menampilkan menu pemilihan rantai
-# Fungsi untuk menampilkan menu pemilihan rantai
 def display_network_menu():
     print(f"{menu_color}Pilih jaringan asal untuk menjalankan transaksi:{reset_color}")
     print(" ")
-    print(f"{chain_symbols['Base']}1. Base{reset_color}")
-    print(f"{chain_symbols['OP Sepolia']}2. OP Sepolia{reset_color}")
-    print(f"{menu_color}3. Semua jaringan (Base dan OP Sepolia){reset_color}")
+    for key, network in networks.items():
+        print(f"{chain_symbols[key]}{network['shortcut']} - {key}{reset_color}")
     print(" ")
-    choice = input("Masukkan pilihan (1-3): ")
+    choice = input("Masukkan shortcut jaringan (contoh: arbt, bssp): ")
     return choice
+
 
 # Fungsi untuk meminta input jumlah bridge
 def get_amount_input():
@@ -187,30 +185,26 @@ def get_amount_input():
         print("Input tidak valid. Harap masukkan angka.")
         return get_amount_input()
 
+# Fungsi utama untuk pemilihan jaringan berdasarkan shortcut
+def select_network_from_shortcut(shortcut):
+    for key, network in networks.items():
+        if network['shortcut'] == shortcut:
+            return key  # Mengembalikan nama jaringan berdasarkan shortcut
+    return None
+
+# Menggunakan fungsi di dalam skrip utama
 def main():
     print("\033[92m" + center_text(description) + "\033[0m")
     print("\n\n")
 
     successful_txs = 0
-    current_network = 'Base'  # Mulai dari rantai Base secara default
-    alternate_network = 'OP Sepolia'
+    current_network = select_network_from_shortcut(input("Masukkan shortcut jaringan: "))  # Memilih jaringan berdasarkan shortcut
+
+    if not current_network:
+        print("Jaringan tidak ditemukan.")
+        return
 
     while True:
-        # Menampilkan menu jaringan dan jumlah
-        network_choice = display_network_menu()
-        if network_choice == '1':
-            current_network = 'Base'
-            alternate_network = 'OP Sepolia'
-        elif network_choice == '2':
-            current_network = 'OP Sepolia'
-            alternate_network = 'Base'
-        elif network_choice == '3':
-            current_network = 'Base'
-            alternate_network = 'OP Sepolia'
-        else:
-            print("Pilihan tidak valid. Coba lagi.")
-            continue
-
         amount_to_bridge = get_amount_input()  # Meminta input jumlah untuk bridge
 
         # Menghubungkan ke Web3 dan memeriksa saldo
@@ -228,10 +222,10 @@ def main():
 
         # Memeriksa saldo sebelum melanjutkan transaksi
         if balance < amount_to_bridge:
-            print(f"{chain_symbols[current_network]}Saldo {current_network} kurang dari {amount_to_bridge} ETH, beralih ke {alternate_network}{reset_color}")
-            current_network, alternate_network = alternate_network, current_network
+            print(f"{chain_symbols[current_network]}Saldo {current_network} kurang dari {amount_to_bridge} ETH, beralih ke jaringan lain.")
+            # Beralih ke jaringan lain atau lakukan tindakan lain
 
-        successful_txs = process_network_transactions(current_network, ["Base - OP Sepolia"] if current_network == 'Base' else ["OP - Base"], networks[current_network], successful_txs)
+        successful_txs = process_network_transactions(current_network, ["Base - OP Sepolia", "Arbitrum Sepolia"], networks[current_network], successful_txs)
 
         time.sleep(random.uniform(30, 60))
 
