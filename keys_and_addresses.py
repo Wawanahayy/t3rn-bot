@@ -1,11 +1,7 @@
 # keys_and_addresses.py
 
-# 私钥列表 (每个私钥应为一个字符串)
-private_keys = [
-    ""
-]
+# Private key utama (JANGAN dibagikan ke siapa pun)
+PRIVATE_KEY = "0xYOUR_PRIVATE_KEY_HERE"
 
-# 标签列表 (每个标签与私钥一一对应)
-labels = [
-    ""
-]
+# Alamat tujuan untuk bridging (sama dengan alamat dompet)
+DESTINATION_ADDRESS = "0x0e80E657EbD638EaE749387bc4b468993EDc0d5B"
