@@ -164,15 +164,28 @@ def process_network_transactions(network_name, bridges, chain_data, successful_t
     return successful_txs
 
 # Fungsi untuk menampilkan menu pemilihan rantai
-def display_menu():
-    print(f"{menu_color}Pilih rantai untuk menjalankan transaksi:{reset_color}")
+# Fungsi untuk menampilkan menu pemilihan rantai
+def display_network_menu():
+    print(f"{menu_color}Pilih jaringan asal untuk menjalankan transaksi:{reset_color}")
     print(" ")
-    print(f"{chain_symbols['Base']}1. Base -> OP Sepolia{reset_color}")
-    print(f"{chain_symbols['OP Sepolia']}2. OP -> Base{reset_color}")
-    print(f"{menu_color}3. Jalankan semua rantai{reset_color}")
+    print(f"{chain_symbols['Base']}1. Base{reset_color}")
+    print(f"{chain_symbols['OP Sepolia']}2. OP Sepolia{reset_color}")
+    print(f"{menu_color}3. Semua jaringan (Base dan OP Sepolia){reset_color}")
     print(" ")
     choice = input("Masukkan pilihan (1-3): ")
     return choice
+
+# Fungsi untuk meminta input jumlah bridge
+def get_amount_input():
+    try:
+        amount = float(input("Masukkan jumlah ETH yang ingin di-bridge (contoh: 0.4): "))
+        if amount <= 0:
+            print("Jumlah harus lebih besar dari 0. Coba lagi.")
+            return get_amount_input()  # Meminta input lagi jika jumlah tidak valid
+        return amount
+    except ValueError:
+        print("Input tidak valid. Harap masukkan angka.")
+        return get_amount_input()
 
 def main():
     print("\033[92m" + center_text(description) + "\033[0m")
@@ -183,21 +196,40 @@ def main():
     alternate_network = 'OP Sepolia'
 
     while True:
+        # Menampilkan menu jaringan dan jumlah
+        network_choice = display_network_menu()
+        if network_choice == '1':
+            current_network = 'Base'
+            alternate_network = 'OP Sepolia'
+        elif network_choice == '2':
+            current_network = 'OP Sepolia'
+            alternate_network = 'Base'
+        elif network_choice == '3':
+            current_network = 'Base'
+            alternate_network = 'OP Sepolia'
+        else:
+            print("Pilihan tidak valid. Coba lagi.")
+            continue
+
+        amount_to_bridge = get_amount_input()  # Meminta input jumlah untuk bridge
+
+        # Menghubungkan ke Web3 dan memeriksa saldo
         web3 = Web3(Web3.HTTPProvider(networks[current_network]['rpc_url']))
-        
+
         while not web3.is_connected():
             print(f"Tidak dapat terhubung ke {current_network}, mencoba kembali...")
             time.sleep(5)
             web3 = Web3(Web3.HTTPProvider(networks[current_network]['rpc_url']))
-        
+
         print(f"Berhasil terhubung ke {current_network}")
-        
+
         my_address = Account.from_key(private_keys[0]).address
         balance = check_balance(web3, my_address)
 
-        if balance < 0.4:
-            print(f"{chain_symbols[current_network]}Saldo {current_network} kurang dari 0.4 ETH, beralih ke {alternate_network}{reset_color}")
-            current_network, alternate_network = alternate_network, current_network  
+        # Memeriksa saldo sebelum melanjutkan transaksi
+        if balance < amount_to_bridge:
+            print(f"{chain_symbols[current_network]}Saldo {current_network} kurang dari {amount_to_bridge} ETH, beralih ke {alternate_network}{reset_color}")
+            current_network, alternate_network = alternate_network, current_network
 
         successful_txs = process_network_transactions(current_network, ["Base - OP Sepolia"] if current_network == 'Base' else ["OP - Base"], networks[current_network], successful_txs)
 
