@@ -1,11 +1,4 @@
 networks = {
-    'l1rn': {
-        'rpc_url': 'https://brn.rpc.caldera.xyz/http',
-        'chain_id': 6636130,  # Sesuaikan dengan chain ID untuk L1RN
-        'contract_address': '',  
-        'shortcut': 'l1rn',
-        'enable_network': 'l1rn'
-    },
     'Arbitrum Sepolia': {
         'rpc_url': 'https://sepolia-rollup.arbitrum.io/rpc',
         'chain_id': 421613,
