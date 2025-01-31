@@ -163,15 +163,6 @@ def process_network_transactions(network_name, bridges, chain_data, successful_t
 
     return successful_txs
 
-def display_network_menu():
-    print(f"{menu_color}Pilih jaringan asal untuk menjalankan transaksi:{reset_color}")
-    print(" ")
-    for key, network in networks.items():
-        print(f"{chain_symbols[key]}{network['shortcut']} - {key}{reset_color}")
-    print(" ")
-    choice = input("Masukkan shortcut jaringan (contoh: arbt, bssp): ")
-    return choice
-
 
 # Fungsi untuk meminta input jumlah bridge
 def get_amount_input():
@@ -186,19 +177,37 @@ def get_amount_input():
         return get_amount_input()
 
 # Fungsi utama untuk pemilihan jaringan berdasarkan shortcut
-def select_network_from_shortcut(shortcut):
-    for key, network in networks.items():
-        if network['shortcut'] == shortcut:
-            return key  # Mengembalikan nama jaringan berdasarkan shortcut
-    return None
+# Fungsi untuk menampilkan menu jaringan dan memilih dengan angka
+def display_network_menu():
+    print(f"{menu_color}Pilih jaringan asal untuk menjalankan transaksi:{reset_color}")
+    print(" ")
+    
+    # Menampilkan jaringan dengan nomor pilihan
+    networks_list = list(networks.items())
+    for idx, (key, network) in enumerate(networks_list, 1):
+        print(f"{chain_symbols[key]}{idx}. {key}{reset_color}")
+    
+    print(" ")
+    
+    # Meminta input angka untuk memilih jaringan
+    try:
+        choice = int(input("Masukkan nomor jaringan yang ingin dipilih: "))
+        if 1 <= choice <= len(networks):
+            return networks_list[choice - 1][0]  # Mengembalikan nama jaringan berdasarkan nomor yang dipilih
+        else:
+            print("Pilihan tidak valid. Coba lagi.")
+            return display_network_menu()  # Meminta input lagi jika pilihan tidak valid
+    except ValueError:
+        print("Input tidak valid. Harap masukkan angka.")
+        return display_network_menu()  # Meminta input lagi jika input bukan angka
 
-# Menggunakan fungsi di dalam skrip utama
+# Fungsi utama untuk menjalankan skrip
 def main():
     print("\033[92m" + center_text(description) + "\033[0m")
     print("\n\n")
 
     successful_txs = 0
-    current_network = select_network_from_shortcut(input("Masukkan shortcut jaringan: "))  # Memilih jaringan berdasarkan shortcut
+    current_network = display_network_menu()  # Memilih jaringan berdasarkan nomor
 
     if not current_network:
         print("Jaringan tidak ditemukan.")
