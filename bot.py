@@ -176,7 +176,15 @@ def get_amount_input():
         print("Input tidak valid. Harap masukkan angka.")
         return get_amount_input()
 
-# Fungsi utama untuk pemilihan jaringan berdasarkan shortcut
+    # Warna dan simbol untuk setiap rantai
+# Warna dan simbol untuk setiap rantai
+chain_symbols = {
+    'Base': '\033[34m',  # Warna untuk rantai Base
+    'OP Sepolia': '\033[91m',
+    'Arbitrum Sepolia': '\033[92m',  # Menambahkan warna untuk Arbitrum Sepolia
+    'blast sepolia': '\033[93m',  # Menambahkan warna untuk L1RN
+}
+
 # Fungsi untuk menampilkan menu jaringan dan memilih dengan angka
 def display_network_menu():
     print(f"{menu_color}Pilih jaringan asal untuk menjalankan transaksi:{reset_color}")
@@ -185,10 +193,9 @@ def display_network_menu():
     # Menampilkan jaringan dengan nomor pilihan
     networks_list = list(networks.items())
     for idx, (key, network) in enumerate(networks_list, 1):
-        print(f"{chain_symbols[key]}{idx}. {key}{reset_color}")
+        print(f"{chain_symbols.get(key, reset_color)}{idx}. {key}{reset_color}")
     
     print(" ")
-    
     # Meminta input angka untuk memilih jaringan
     try:
         choice = int(input("Masukkan nomor jaringan yang ingin dipilih: "))
